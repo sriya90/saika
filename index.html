@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+      #messages { margin-bottom: 40px }
+    </style>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+    var i=0;
+
+
+      $(function () {
+          var user = prompt('enter user name')
+        var socket = io();
+          var id = socket.io.engine.id;
+          console.log(socket.io.engine.id);
+        $('form').submit(function(){        
+               if(!localStorage.getItem("chat")){
+     localStorage.setItem("chat", JSON.stringify([]));
+     }
+     var chatHistory = JSON.parse(localStorage.getItem("chat"));
+            if(!chatHistory.includes(socket.io.engine.id))
+                chatHistory.push(socket.io.engine.id);
+                localStorage.setItem("chat", JSON.stringify(chatHistory));
+          socket.emit('chat message', user+':'+$('#m').val(),chatHistory);
+          $('#m').val('');
+          return false;
+            sessionStorage.setItem('name',user);
+        });
+        socket.on('chat message', function(msg){
+          $('#messages').append($('<li>').text(msg));
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+      });
+    </script>
+  </body>
+</html>
